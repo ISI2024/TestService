@@ -1,0 +1,17 @@
+users/.env
+*/__pycache__
+*/*/__pycache__
+*/*/*/__pycache__
+dist
+.env
+.envrc
+rest_api/logs
+untracked
+files
+db_volume
+.vscode
+.pytest_cache
+reverse_proxy/certs
+uvicorn.log
+email_service/target
+common/target
