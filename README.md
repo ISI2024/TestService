@@ -1,0 +1,7 @@
+- przepięcie email servisu na rabitta
+- dodanie emaila wysyłającego wyniki
+- ładne logi
+- osobna klasa konfigs
+- testy
+- obsługa błędów
+- dokeryzacja

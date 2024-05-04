@@ -7,6 +7,6 @@ SQLALCHEMY_DATABASE_URL: str = os.environ.get("DB_LINK")
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
-SessionLocal: sessionmaker = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 Base = declarative_base()
+
+SessionLocal: sessionmaker = sessionmaker(autocommit=False, autoflush=False, bind=engine)

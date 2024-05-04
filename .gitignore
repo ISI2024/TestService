@@ -5,7 +5,7 @@ users/.env
 dist
 .env
 .envrc
-rest_api/logs
+test_service/logs
 untracked
 files
 db_volume
@@ -15,3 +15,4 @@ reverse_proxy/certs
 uvicorn.log
 email_service/target
 common/target
+server.db

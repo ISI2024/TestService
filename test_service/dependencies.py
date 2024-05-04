@@ -1,12 +1,16 @@
-from rest_api.database import SessionLocal
+from test_service.database import SessionLocal
 import os
-import redis
+import pika
 
 QR_CODE_ENCRYPT_KEY = os.environ.get("QR_CODE_ENCRYPT_KEY")
 QR_CODE_TOKEN_LIFE_TIME = int(os.environ.get("QR_CODE_TOKEN_LIFE_TIME"))
 QR_CODE_ALGORITHM = os.environ.get("QR_CODE_ALGORITHM")
 
-redis_pool = redis.ConnectionPool(host=str(os.environ.get("REDIS_LINK")), port=6379, db=0)
+rabbitmq_params = pika.ConnectionParameters(host=os.environ.get("RABBITMQ_HOST", "localhost"),
+                                            port=int(os.environ.get("RABBITMQ_PORT", 5672)),
+                                            credentials=pika.PlainCredentials(
+                                                os.environ.get("RABBITMQ_USER", "guest"),
+                                                os.environ.get("RABBITMQ_PASSWORD", "guest")))
 
 
 def get_db():
@@ -17,9 +21,11 @@ def get_db():
         db.close()
 
 
-def get_redis():
+def get_rabbitmq_channel():
     try:
-        redis_client = redis.Redis(connection_pool=redis_pool)
-        yield redis_client
+        connection = pika.BlockingConnection(rabbitmq_params)
+        channel = connection.channel()
+        yield channel
     finally:
-        redis_client.close()
+        channel.close()
+        connection.close()
