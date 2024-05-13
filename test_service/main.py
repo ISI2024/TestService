@@ -1,7 +1,7 @@
 import logging
 import sys
 import asyncio
-from test_service.queue_manager import QueueManager
+from test_service.queue_manager import KafkaConsumer
 
 sys.path.append("./..")
 
@@ -39,14 +39,14 @@ Base.metadata.create_all(engine)
 
 @app.on_event("startup")
 async def startup_event():
-    manager = QueueManager()
-    await manager.setup()
+    consumer = KafkaConsumer(topic="tests")
+    await consumer.setup()
 
-    task = asyncio.create_task(manager.consume())
-    app.state.rabbitmq_task = task
+    task = asyncio.create_task(consumer.consume_messages())
+    app.state.kafka_task = task
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    app.state.rabbitmq_task.cancel()
-    await app.state.rabbitmq_task
+    app.state.kafka_task.cancel()
+    await app.state.kafka_task

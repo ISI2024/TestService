@@ -17,13 +17,6 @@ class NoValue(Enum):
 # -----
 
 
-class AnalyzerCommand(BaseModel):
-    id: int
-    user_login: Optional[str]
-
-# -----
-
-
 class QrCodeData(BaseModel):
     login: str
     exp: int
@@ -63,42 +56,50 @@ class ExaminationResult(BaseModel):
     micro_albumin: Optional[str] = None
 
 
-class EmailExaminationResult(BaseModel):
+class VerifiedUser(BaseModel):
+    login: str
+    analyzer_code: str
+    examination_id: int
+
+class FinishedTest(BaseModel):
     email: str
     result: ExaminationResult
 
-
 # ----
 @unique
-class EmailMessageType(NoValue):
-    RESULT = 'RESULT'
+class TestsEventType(NoValue):
+    VERIFIED_USER = 'VERIFIED_USER'
+    FINISHED_ANALYZE = 'FINISHED_ANALYZE'
+    FINISHED_TEST = 'FINISHED_TEST'
 
 
-class EmailMessage(BaseModel):
-    kind: EmailMessageType
-    data: EmailExaminationResult
+class TestsEvent(BaseModel):
+    kind: TestsEventType
+    data: ExaminationResult | VerifiedUser | FinishedTest
 
 
 # -----
 
 
 @unique
-class UsersMessageType(NoValue):
-    CREATE = 'CREATE'
-    UPDATE = 'UPDATE'
-    DELETE = 'DELETE'
-    CHANGE_WALLET = 'CHANGE_WALLET'
+class UsersEventType(NoValue):
+    DELETED = 'DELETED'
+    CHANGED_WALLET_STATE = 'CHANGED_WALLET_STATE'
+    NEW_USER = 'NEW_USER'
+    UPDATED_INFO = 'UPDATED_INFO'
 
 
 class WalletChangeData(BaseModel):
     login: str
-    wallet: float
+    change_amount: float
 
 
-class UserData(WalletChangeData):
+class UserData(BaseModel):
     email: str
+    login: str
+    wallet: float = 0.0
 
 
-class UsersMessage(BaseModel):
-    kind: UsersMessageType
+class UsersEvent(BaseModel):
+    kind: UsersEventType
     data: UserData | WalletChangeData

@@ -1,5 +1,5 @@
-from datetime import datetime
 from pydantic import BaseModel
+from typing import Optional
 
 
 class Examination(BaseModel):
@@ -17,3 +17,11 @@ class Examination(BaseModel):
     bilirubin: str | None
     glucose: str | None
     micro_albumin: str | None
+
+
+# -----
+
+
+class AnalyzerCommand(BaseModel):
+    id: int
+    user_login: Optional[str]

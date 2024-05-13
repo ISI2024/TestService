@@ -1,11 +1,9 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import os
+from test_service.config import Config
 
-SQLALCHEMY_DATABASE_URL: str = os.environ.get("DB_LINK")
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(Config().db_link)
 
 Base = declarative_base()
 

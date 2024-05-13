@@ -6,6 +6,7 @@ dist
 .env
 .envrc
 test_service/logs
+./logs/*
 untracked
 files
 db_volume
@@ -16,3 +17,4 @@ uvicorn.log
 email_service/target
 common/target
 server.db
+config.yaml

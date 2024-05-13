@@ -1,14 +1,18 @@
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
+from logging import log, INFO, ERROR
 
-from test_service.dependencies import get_db, get_rabbitmq_channel
+
+from test_service.dependencies import get_db
 from test_service.sockets_manager import ConnectionManager
 from test_service.crud import get_user_by_login, get_users_examinations, create_examination_result
 from test_service.errors import no_user_with_given_login, no_money
 from test_service.models import Users, ExaminationResult
 from test_service.tokens import check_qr_code, qr_code_data
-from test_service.dataclasses import SocketMessage, SocketMessageType, QrCodeData, WalletChangeData, UsersMessage, UsersMessageType, AnalyzerCommand
-from test_service.schemas import Examination
+from test_service.dataclasses import SocketMessage, SocketMessageType, QrCodeData, WalletChangeData, UsersEventType, UsersEvent, VerifiedUser, TestsEventType, TestsEvent
+from test_service.schemas import Examination, AnalyzerCommand
+from test_service.queue_manager import KafkaProducer
+from test_service.config import Config
 
 router = APIRouter(
     prefix="/examination",
@@ -19,13 +23,15 @@ router = APIRouter(
 )
 
 manager = ConnectionManager()
+producer = KafkaProducer()
+config = Config()
 
 # -------------------------
-
+# Only for easier development
 
 @router.post("/queue_test/")
-async def send_message(message: str, key: str, channel=Depends(get_rabbitmq_channel)):
-    channel.basic_publish(exchange='', routing_key=key, body=message)
+async def send_message(message: str, key: str):
+    await producer.produce_message(message=message, topic=key)
     return {"message": "Message sent", "content": message}
 
 
@@ -34,12 +40,17 @@ async def send_message(message: str, key: str, channel=Depends(get_rabbitmq_chan
 
 @router.websocket("/get_qr_code/{login}")
 async def get_qr_code_with_socket(websocket: WebSocket, login: str, db: Session = Depends(get_db)):
+    """
+    Setup websocket connection. 
+    Generate jwt for qr code generation.
+    After qr code verification connection is closed.
+    """
     user: Users = await get_user_by_login(db_session=db, user_login=login)
 
     if user is None:
         raise no_user_with_given_login
 
-    if user.wallet - 5 < 0:
+    if user.wallet - config.test_cost < 0:
         raise no_money
 
     await manager.connect(websocket=websocket, login=login)
@@ -48,37 +59,35 @@ async def get_qr_code_with_socket(websocket: WebSocket, login: str, db: Session 
         message = SocketMessage(kind=SocketMessageType.TOKEN, token=token_data)
         await manager.send_personal_message(login=login, message=str(message.model_dump_json()))
         while True:
-            data = await websocket.receive_text()
+            _ = await websocket.receive_text()
     except WebSocketDisconnect:
-        print(f"User {login} dissconected")
+        log(INFO, f"User {login} dissconected")
 
 
 @router.put("/verify_customer", summary="Verify customer QR code")
-async def put_verify_customer(
-    qr_code_token: str, code: str, db: Session = Depends(get_db),
-    channel=Depends(get_rabbitmq_channel)) -> None:
+async def put_verify_customer(qr_code_token: str, code: str,
+                              db: Session = Depends(get_db)) -> AnalyzerCommand:
     """
     Check if scanned QR code is valid and user can be examined.
+    If so, starts examination logic.
     """
     user_token: QrCodeData = await check_qr_code(token_body=qr_code_token)
     message = SocketMessage(kind=SocketMessageType.AWAIT_RESULT, token=None)
     await manager.send_personal_message(login=user_token["login"], message=str(message.model_dump_json()))
 
-    result = await create_examination_result(db_session=db,
-                                             fk_user=user_token["login"],
-                                                analyzer=code)
-    channel.basic_publish(exchange='', 
-                          routing_key="tests2analyzer", 
-                          body=str(
-                            AnalyzerCommand(user_login=user_token["login"],id=result.id).model_dump_json()))
-    channel.basic_publish(exchange='',
-                          routing_key="tests2users",
-                          body=str(
-                              UsersMessage(kind=UsersMessageType.CHANGE_WALLET,
-                                           data=WalletChangeData(login=user_token["login"],
-                                                                 wallet=-5.0)).model_dump_json()))
+    result = await create_examination_result(db_session=db, fk_user=user_token["login"], analyzer=code)
 
-    # manager.disconnect(login=user_token.login)
+    await producer.produce_message(message=str(
+        UsersEvent(kind=UsersEventType.CHANGED_WALLET_STATE,
+                   data=WalletChangeData(login=user_token["login"], wallet=-config.test_cost)).model_dump_json()),
+                                   topic="users")
+
+    manager.disconnect(login=user_token.login)
+
+    event = TestsEvent(kind=TestsEventType.VERIFIED_USER, data=VerifiedUser(login=user_token["login"], analyzer_code=code, examination_id=result.id))
+    await producer.produce_message(topic="tests", message=str(event))
+
+    return AnalyzerCommand(user_login=user_token["login"], id=result.id)
 
 
 @router.get("/results/{login}", response_model=list[Examination], summary="List examinations")
@@ -87,3 +96,6 @@ async def get_read_my_examinations(login: str, db: Session = Depends(get_db)) ->
     Allows the user to list all of their examinations
     """
     return await get_users_examinations(db_session=db, login=login)
+
+
+# update i delete results

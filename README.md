@@ -1,7 +1,17 @@
-- przepięcie email servisu na rabitta
 - dodanie emaila wysyłającego wyniki
-- ładne logi
-- osobna klasa konfigs
-- testy
-- obsługa błędów
 - dokeryzacja
+
+- kafka w chmurze
+- przepięcie na kafke
+- ładownie konfigów
+- obsługa wyjątków
+- logowanie
+- notification service
+
+============================================
+
+- kafka
+- configi z plików
+- przejście na postgresa
+- dokeryzacja
+- vps z kafką w bazowym ustawioeniu ()

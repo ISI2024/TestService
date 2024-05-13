@@ -1,5 +1,5 @@
 from test_service.database import Base
-from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
 
 
 class Users(Base):
