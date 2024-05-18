@@ -11,7 +11,7 @@ from test_service.models import Users, ExaminationResult
 from test_service.tokens import check_qr_code, qr_code_data
 from test_service.dataclasses import SocketMessage, SocketMessageType, QrCodeData, WalletChangeData, UsersEventType, UsersEvent, VerifiedUser, TestsEventType, TestsEvent
 from test_service.schemas import Examination, AnalyzerCommand
-from test_service.queue_manager import KafkaProducer
+from test_service.queue_manager import producer
 from test_service.config import Config
 
 router = APIRouter(
@@ -23,7 +23,6 @@ router = APIRouter(
 )
 
 manager = ConnectionManager()
-producer = KafkaProducer()
 config = Config()
 
 # -------------------------

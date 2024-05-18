@@ -1,17 +1,17 @@
 - dodanie emaila wysyłającego wyniki
 - dokeryzacja
-
-- kafka w chmurze
-- przepięcie na kafke
-- ładownie konfigów
-- obsługa wyjątków
-- logowanie
 - notification service
 
 ============================================
 
-- kafka
-- configi z plików
-- przejście na postgresa
-- dokeryzacja
-- vps z kafką w bazowym ustawioeniu ()
+- migracje
+- kafka server
+- dokeryzacja całości
+
+===========================
+
+- przetestowanie crudów badań
+- upewnienie się że logi działają
+- ustanie konfiguracji uvicorna
+- wgranie test servisu na server
+- dataclassy jako paczka poetry

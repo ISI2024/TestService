@@ -16,6 +16,7 @@ COPY pyproject.toml poetry.lock ./
 
 RUN poetry install --no-root
 
-COPY . .
+COPY ./test_service .
+COPY ./config.yaml ./config.yaml
 
 CMD ["uvicorn", "test_service.main:app", "--log-config", "utils/uvicorn_config.ini", "--host", "0.0.0.0", "--port", "8000"]

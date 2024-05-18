@@ -416,6 +416,14 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 dev = ["pre-commit", "tox"]
 
 [[package]]
+name = "psycopg2"
+version = "2.9.9"
+description = "psycopg2 - Python-PostgreSQL Database Adapter"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "py"
 version = "1.11.0"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
@@ -693,7 +701,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-ena
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "308906d1b532e03b2a933fec934c59c9af5c9f5189ba85eaab423fb746d2d561"
+content-hash = "5d388b849a777ee441dcf40f3416f7d585c80f3db0744793a8b5d6312ce2e697"
 
 [metadata.files]
 aio-pika = []
@@ -730,6 +738,7 @@ passlib = []
 pika = []
 platformdirs = []
 pluggy = []
+psycopg2 = []
 py = []
 pyasn1 = []
 pycparser = []

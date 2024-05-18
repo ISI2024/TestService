@@ -2,7 +2,6 @@ from test_service.crud import create_user, get_user_by_login, update_user, delet
 from test_service.database import SessionLocal
 from test_service.dataclasses import UsersEvent, UsersEventType, ExaminationResult, TestsEvent, TestsEventType, FinishedTest
 from test_service.config import Config
-from test_service.endpoints import producer
 
 import json
 
@@ -18,7 +17,6 @@ kafka_conf_consumer = {
     'group.id': 'tests',
     'auto.offset.reset': 'latest'
 }
-
 
 class KafkaConsumer:
 
@@ -50,7 +48,11 @@ class KafkaConsumer:
                         log(ERROR, msg.error())
                         raise KafkaException(msg.error())
 
-                await self.on_users_message(message=msg.value().decode("utf-8"))
+                if self.topic == "users":
+                    await self.on_users_message(message=msg.value().decode("utf-8"))
+                else:
+                    await self.on_tests_message(message=msg.value().decode("utf-8"))
+
                 await asyncio.sleep(1)
 
         except Exception as e:
@@ -137,7 +139,11 @@ class KafkaProducer:
         except KafkaException as e:
             log(ERROR, f"Unable to produce event: {e}")
 
+producer = KafkaProducer()
+
 # ----
+
+
 
 # {"kind": "NEW_USER","data": {"login":"kutacz2","email":"ur@mo.m","wallet":21.37}}
 # {"kind": "UPDATE","data": {"login":"kutacz","email":"ur4@mo.m","wallet":421.37}}

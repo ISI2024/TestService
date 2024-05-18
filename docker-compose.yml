@@ -19,16 +19,15 @@ services:
     image: postgres:13
     container_name: postgres_db
     ports:
-      - "5432:5432"
+      - "9432:5432"
     environment:
-      - POSTGRES_DB=mydatabase
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=isi
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
 
   # ---
-
   zookeeper:
     image: bitnami/zookeeper:3.8.0
     container_name: zookeeper
@@ -37,6 +36,8 @@ services:
     environment:
       - ZOO_ENABLE_AUTH=no
       - ALLOW_ANONYMOUS_LOGIN=yes
+    volumes:
+      - zookeeper_data:/bitnami/zookeeper
 
   kafka:
     image: bitnami/kafka:3.2.0
@@ -46,8 +47,15 @@ services:
     environment:
       - KAFKA_BROKER_ID=1
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      # - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://172.210.66.111:9092
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
       - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
       - ALLOW_PLAINTEXT_LISTENER=yes
     depends_on:
       - zookeeper
+    volumes:
+      - kafka_data:/bitnami/kafka
+
+volumes:
+  zookeeper_data:
+  kafka_data:

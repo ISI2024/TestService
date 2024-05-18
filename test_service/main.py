@@ -39,11 +39,17 @@ Base.metadata.create_all(engine)
 
 @app.on_event("startup")
 async def startup_event():
-    consumer = KafkaConsumer(topic="tests")
-    await consumer.setup()
+    consumer1 = KafkaConsumer(topic="users")
+    await consumer1.setup()
 
-    task = asyncio.create_task(consumer.consume_messages())
-    app.state.kafka_task = task
+    task1 = asyncio.create_task(consumer1.consume_messages())
+    app.state.kafka_task = task1
+
+    consumer2 = KafkaConsumer(topic="tests")
+    await consumer2.setup()
+
+    task2 = asyncio.create_task(consumer2.consume_messages())
+    app.state.kafka_task = task2
 
 
 @app.on_event("shutdown")
