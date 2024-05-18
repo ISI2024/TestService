@@ -20,7 +20,7 @@ def setup_logging():
     rootLogger.addHandler(fileHandler)
 
 
-#setup_logging()
+setup_logging()
 
 app = FastAPI(title="Test service")
 

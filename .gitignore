@@ -18,3 +18,4 @@ email_service/target
 common/target
 server.db
 config.yaml
+logs/*
