@@ -79,7 +79,7 @@ class KafkaConsumer:
                     case UsersEventType.CHANGED_WALLET_STATE:
                         await update_wallet(db_session=db_session,
                                             user_login=decoded.data.login,
-                                            change=decoded.data.wallet)
+                                            change=decoded.data.change_amount)
                     case _:
                         log(ERROR, f"Unsupported users command: {decoded.kind}")
 
@@ -88,22 +88,24 @@ class KafkaConsumer:
 
     async def on_tests_message(self, message: str):
         try:
-            message = json.loads(message.body.decode())
+            message = json.loads(message)
             decoded = TestsEvent(**message)
+
 
             with SessionLocal() as db_session:
                 match decoded.kind:
                     case TestsEventType.FINISHED_ANALYZE:
                         current_examination = await get_examination_result_by_id(db_session=db_session,
-                                                                                    result_id=decoded.id)
+                                                                                    result_id=decoded.data.id)
                         if current_examination and current_examination.examination_date is None:
                             examination =  await update_examination_result(db_session=db_session,
-                                                                result_id=decoded.id,
+                                                                result_id=decoded.data.id,
                                                                 update_data=decoded.model_dump())
+                            user = await get_user_by_login(db_session=db_session, user_login=decoded.data.fk_user)
 
-                            user = await get_user_by_login(db_session=db_session, user_login=decoded.fk_user)
-                            response = TestsEvent(kind=TestsEventType.FINISHED_TEST, data=FinishedTest(email=user.email, result=examination))
-                            await producer.produce_message(topic="tests", message=str(response))
+                            if user:
+                                response = TestsEvent(kind=TestsEventType.FINISHED_TEST, data=FinishedTest(email=str(user.email))).model_dump_json()
+                                await producer.produce_message(topic="tests", message=str(response))
                             
                     case TestsEventType.VERIFIED_USER:
                         pass
@@ -145,9 +147,9 @@ producer = KafkaProducer()
 
 
 
-# {"kind": "NEW_USER","data": {"login":"kutacz2","email":"ur@mo.m","wallet":21.37}}
+# {"kind": "NEW_USER","data": {"login":"kutacz10","email":"ur10@mo.m","wallet":21.37}}
 # {"kind": "UPDATE","data": {"login":"kutacz","email":"ur4@mo.m","wallet":421.37}}
 # {"kind": "DELETE","data": {"login":"kutacz","email":"ur@mo.m","wallet":21.37}}
 # {"kind": "CHANGE_WALLET","data": {"login":"kutacz","email":"ur2@mo.m","wallet":-11.37}}
 
-# {"fk_user":"kutacz","analyzer":"121121","id":5,"examination_date":"2024-05-03 23:54:48.197062","leukocytes":"2137","nitrite":null,"urobilinogen":null,"protein":null,"ph":null,"blood":null,"specific_gravity":null,"ascorbate":null,"ketone":null,"bilirubin":null,"glucose":null,"micro_albumin":null}
+# {"kind": "FINISHED_ANALYZE","data": {"id": 5, "fk_user":"adamozo","analyzer":"121121","examination_date":"2024-05-03 23:54:48.197062","leukocytes":"2137","nitrite":null,"urobilinogen":null,"protein":null,"ph":null,"blood":null,"specific_gravity":null,"ascorbate":null,"ketone":null,"bilirubin":null,"glucose":null,"micro_albumin":null}}

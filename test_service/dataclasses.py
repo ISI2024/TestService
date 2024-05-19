@@ -63,7 +63,7 @@ class VerifiedUser(BaseModel):
 
 class FinishedTest(BaseModel):
     email: str
-    result: ExaminationResult
+    # result: ExaminationResult
 
 # ----
 @unique

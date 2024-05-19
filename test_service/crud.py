@@ -78,7 +78,6 @@ async def create_examination_result(db_session: Session, fk_user: str, analyzer:
     new_result = ExaminationResult(fk_user=fk_user, analyzer=analyzer)
     db_session.add(new_result)
     db_session.commit()
-    db_session.refresh(new_result)
     return new_result
 
 

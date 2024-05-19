@@ -78,12 +78,12 @@ async def put_verify_customer(qr_code_token: str, code: str,
 
     await producer.produce_message(message=str(
         UsersEvent(kind=UsersEventType.CHANGED_WALLET_STATE,
-                   data=WalletChangeData(login=user_token["login"], wallet=-config.test_cost)).model_dump_json()),
+                   data=WalletChangeData(login=user_token["login"], change_amount=-config.test_cost)).model_dump_json()),
                                    topic="users")
 
-    manager.disconnect(login=user_token.login)
+    await manager.disconnect(login=user_token["login"])
 
-    event = TestsEvent(kind=TestsEventType.VERIFIED_USER, data=VerifiedUser(login=user_token["login"], analyzer_code=code, examination_id=result.id))
+    event = TestsEvent(kind=TestsEventType.VERIFIED_USER, data=VerifiedUser(login=user_token["login"], analyzer_code=code, examination_id=result.id)).model_dump_json()
     await producer.produce_message(topic="tests", message=str(event))
 
     return AnalyzerCommand(user_login=user_token["login"], id=result.id)

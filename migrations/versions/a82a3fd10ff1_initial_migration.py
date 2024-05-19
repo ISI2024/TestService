@@ -29,7 +29,7 @@ CREATE TABLE users (
 
     examinations_results = """
 CREATE TABLE examinations_results (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     examination_date DATE,
     analyzer VARCHAR,
     fk_user VARCHAR NOT NULL,
