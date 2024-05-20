@@ -21,4 +21,6 @@ RUN poetry install --no-root
 COPY ./test_service .
 COPY ./config.yaml ./config.yaml
 
+RUN alembic migrate head
+
 CMD ["uvicorn", "test_service.main:app", "--log-config", "utils/uvicorn_config.ini", "--host", "0.0.0.0", "--port", "8000"]
