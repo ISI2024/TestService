@@ -1,10 +1,11 @@
 from test_service.crud import create_user, get_user_by_login, update_user, delete_user, update_wallet, get_examination_result_by_id, update_examination_result
 from test_service.database import SessionLocal
-from test_service.dataclasses import UsersEvent, UsersEventType, ExaminationResult, TestsEvent, TestsEventType, FinishedTest
 from test_service.config import Config
 
-import json
+from test_service.common.users import UsersEvent, UsersEventType
+from test_service.common.tests import TestsEvent, TestsEventType, FinishedTest
 
+import json
 import asyncio
 from confluent_kafka import Producer, Consumer, KafkaException, KafkaError
 from logging import log, INFO, ERROR

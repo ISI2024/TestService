@@ -1,18 +1,20 @@
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
-from logging import log, INFO, ERROR
+from logging import log, INFO
 
-
-from test_service.dependencies import get_db
+from test_service.database import get_db
 from test_service.sockets_manager import ConnectionManager
 from test_service.crud import get_user_by_login, get_users_examinations, create_examination_result
 from test_service.errors import no_user_with_given_login, no_money
-from test_service.models import Users, ExaminationResult
+from test_service.models import Users
 from test_service.tokens import check_qr_code, qr_code_data
-from test_service.dataclasses import SocketMessage, SocketMessageType, QrCodeData, WalletChangeData, UsersEventType, UsersEvent, VerifiedUser, TestsEventType, TestsEvent
+from test_service.dataclasses import SocketMessage, SocketMessageType 
 from test_service.schemas import Examination, AnalyzerCommand
 from test_service.queue_manager import producer
 from test_service.config import Config
+
+from test_service.common.users import QrCodeData, WalletChangeData, UsersEventType, UsersEvent
+from test_service.common.tests import TestsEventType, TestsEvent, VerifiedUser
 
 router = APIRouter(
     prefix="/examination",

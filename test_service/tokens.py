@@ -2,7 +2,7 @@ from test_service.errors import credentials_exception, qr_code_expired
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from test_service.config import Config
-from test_service.dataclasses import QrCodeData
+from test_service.common.users import QrCodeData
 
 config = Config()
 
