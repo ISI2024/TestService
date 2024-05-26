@@ -12,13 +12,6 @@ from logging import log, INFO, ERROR
 
 config = Config()
 
-kafka_conf_producer = {'bootstrap.servers': config.kafka_host, 'client.id': 'tests-producer'}
-kafka_conf_consumer = {
-    'bootstrap.servers': config.kafka_host,
-    'group.id': 'tests',
-    'auto.offset.reset': 'latest'
-}
-
 class KafkaConsumer:
 
     def __init__(self, topic: str) -> None:
@@ -26,7 +19,7 @@ class KafkaConsumer:
         self.consumer = None
 
     async def setup(self):
-        self.consumer = Consumer(kafka_conf_consumer)
+        self.consumer = Consumer(config.kafka_consumer)
 
     async def consume_messages(self):
         if self.consumer is None:
@@ -128,7 +121,7 @@ class KafkaProducer:
         self.producer = None
 
     async def setup(self):
-        self.producer = Producer(kafka_conf_producer)
+        self.producer = Producer(config.kafka_producer)
         log(INFO, f"Created producer")
 
     async def produce_message(self, message: str, topic: str):

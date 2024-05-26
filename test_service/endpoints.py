@@ -4,7 +4,7 @@ from logging import log, INFO
 
 from test_service.database import get_db
 from test_service.sockets_manager import ConnectionManager
-from test_service.crud import get_user_by_login, get_users_examinations, create_examination_result
+from test_service.crud import get_user_by_login, get_users_examinations, create_examination_result, delete_examination_result
 from test_service.errors import no_user_with_given_login, no_money
 from test_service.models import Users
 from test_service.tokens import check_qr_code, qr_code_data
@@ -99,4 +99,9 @@ async def get_read_my_examinations(login: str, db: Session = Depends(get_db)) ->
     return await get_users_examinations(db_session=db, login=login)
 
 
-# update i delete results
+@router.delete("/results/{id}", response_model=bool, summary="Delete examination")
+async def remove_examination(id: int, db: Session = Depends(get_db)) -> bool:
+    """
+    Removes examination with given id
+    """
+    return await delete_examination_result(db_session=db, result_id=id)
