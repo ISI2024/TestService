@@ -15,13 +15,11 @@ services:
       - zookeeper
       - db
     networks:
-      - isi
+      - app_network
 
   db:
     image: postgres:15
     container_name: postgres_db
-    ports:
-      - "9432:5432"
     environment:
       - POSTGRES_DB=isi
       - POSTGRES_USER=admin
@@ -29,9 +27,8 @@ services:
     volumes:
       - ./db_data:/var/lib/postgresql/data
     networks:
-      - isi
+      - app_network
 
-  # ---
   zookeeper:
     image: bitnami/zookeeper:3.8.0
     container_name: zookeeper
@@ -43,7 +40,7 @@ services:
     volumes:
       - zookeeper_data:/bitnami/zookeeper
     networks:
-      - isi
+      - app_network
 
   kafka:
     image: bitnami/kafka:3.2.0
@@ -53,8 +50,7 @@ services:
     environment:
       - KAFKA_BROKER_ID=1
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-      # - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://172.210.66.111:9092
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://172.210.66.111:9092
       - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
       - ALLOW_PLAINTEXT_LISTENER=yes
     depends_on:
@@ -62,12 +58,13 @@ services:
     volumes:
       - kafka_data:/bitnami/kafka
     networks:
-      - isi
+      - app_network
 
 volumes:
   zookeeper_data:
   kafka_data:
 
 networks:
-  isi:
-    external: true
+  app_network:
+    driver: bridge
+    name: isi

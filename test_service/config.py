@@ -31,3 +31,19 @@ class Config:
 
                 self.kafka_host = config['kafka']['host']
                 self.test_cost = float(config['test_cost'])
+
+                self.kafka_base = {
+                    'bootstrap.servers': config['kafka']['host'],
+                    'security.protocol': 'SASL_PLAINTEXT',
+                    'sasl.mechanisms': 'PLAIN',
+                    'sasl.username': config['kafka']['user'],
+                    'sasl.password': config['kafka']['password']
+                }
+
+                self.kafka_consumer = self.kafka_base.copy()
+                self.kafka_producer = self.kafka_base.copy()
+
+                self.kafka_consumer['group.id'] = 'tests'
+                self.kafka_consumer['auto.offset.reset'] = 'latest'
+
+                self.kafka_producer['client.id'] = 'tests-producer'

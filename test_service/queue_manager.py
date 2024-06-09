@@ -1,22 +1,16 @@
 from test_service.crud import create_user, get_user_by_login, update_user, delete_user, update_wallet, get_examination_result_by_id, update_examination_result
 from test_service.database import SessionLocal
-from test_service.dataclasses import UsersEvent, UsersEventType, ExaminationResult, TestsEvent, TestsEventType, FinishedTest
 from test_service.config import Config
 
-import json
+from test_service.common.users import UsersEvent, UsersEventType
+from test_service.common.tests import TestsEvent, TestsEventType, FinishedTest
 
+import json
 import asyncio
 from confluent_kafka import Producer, Consumer, KafkaException, KafkaError
 from logging import log, INFO, ERROR
 
 config = Config()
-
-kafka_conf_producer = {'bootstrap.servers': config.kafka_host, 'client.id': 'tests-producer'}
-kafka_conf_consumer = {
-    'bootstrap.servers': config.kafka_host,
-    'group.id': 'tests',
-    'auto.offset.reset': 'latest'
-}
 
 class KafkaConsumer:
 
@@ -25,7 +19,7 @@ class KafkaConsumer:
         self.consumer = None
 
     async def setup(self):
-        self.consumer = Consumer(kafka_conf_consumer)
+        self.consumer = Consumer(config.kafka_consumer)
 
     async def consume_messages(self):
         if self.consumer is None:
@@ -127,7 +121,7 @@ class KafkaProducer:
         self.producer = None
 
     async def setup(self):
-        self.producer = Producer(kafka_conf_producer)
+        self.producer = Producer(config.kafka_producer)
         log(INFO, f"Created producer")
 
     async def produce_message(self, message: str, topic: str):

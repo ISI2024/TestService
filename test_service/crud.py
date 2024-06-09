@@ -54,14 +54,14 @@ async def update_wallet(db_session: Session, user_login: str, change: float) -> 
 
 async def delete_user(db_session: Session, login: str) -> None:
     try:
-        users = db_session.query(Users).filter(Users.login == login).delete()
-        db_session.commit()
-
         examinations = db_session.query(ExaminationResult).filter(ExaminationResult.fk_user == login).all()
         
         for examination in examinations:
             db_session.delete(examination)
         
+        db_session.commit()
+
+        users = db_session.query(Users).filter(Users.login == login).delete()
         db_session.commit()
 
         log(INFO, "Successfully deleted user")
