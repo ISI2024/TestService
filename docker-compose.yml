@@ -5,7 +5,7 @@ services:
     build: .
     container_name: my_fastapi_app
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       - POETRY_VIRTUALENVS_CREATE=false
     volumes:
@@ -14,9 +14,11 @@ services:
       - kafka
       - zookeeper
       - db
+    networks:
+      - isi
 
   db:
-    image: postgres:13
+    image: postgres:15
     container_name: postgres_db
     ports:
       - "9432:5432"
@@ -25,7 +27,9 @@ services:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - ./db_data:/var/lib/postgresql/data
+    networks:
+      - isi
 
   # ---
   zookeeper:
@@ -38,6 +42,8 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=yes
     volumes:
       - zookeeper_data:/bitnami/zookeeper
+    networks:
+      - isi
 
   kafka:
     image: bitnami/kafka:3.2.0
@@ -55,7 +61,13 @@ services:
       - zookeeper
     volumes:
       - kafka_data:/bitnami/kafka
+    networks:
+      - isi
 
 volumes:
   zookeeper_data:
   kafka_data:
+
+networks:
+  isi:
+    external: true
