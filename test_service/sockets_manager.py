@@ -11,7 +11,8 @@ class ConnectionManager:
         self.active_connections[login] = websocket
 
     async def disconnect(self, login: str):
-        self.active_connections[login] = None
+        if login in self.active_connections[login]:
+            self.active_connections[login] = None
 
     async def send_personal_message(self, message: str, login: str):
         await self.active_connections[login].send_text(message)

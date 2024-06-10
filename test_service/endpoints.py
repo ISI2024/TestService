@@ -106,7 +106,7 @@ async def get_read_my_examinations(login: str, db: Session = Depends(get_db)) ->
 
 
 @router.delete("/results/{id}", response_model=bool, summary="Delete examination")
-async def remove_examination(id: int, db: Session = Depends(get_db)) -> bool:
+async def remove_examination(id: int, db: Session = Depends(get_db)):
     """
     Removes examination with given id
     """
@@ -114,5 +114,3 @@ async def remove_examination(id: int, db: Session = Depends(get_db)) -> bool:
 
     if result is None:
         raise no_examination
-
-    return result

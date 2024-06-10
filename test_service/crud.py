@@ -104,7 +104,7 @@ async def get_users_examinations(db_session: Session, login: str):
 
     return [
         Examination(id=result.id,
-                    examination_date=result.examination_date,
+                    examination_date=str(result.examination_date),
                     leukocytes=result.leukocytes,
                     nitrite=result.nitrite,
                     urobilinogen=result.urobilinogen,
@@ -125,7 +125,6 @@ async def update_examination_result(db_session: Session, result_id: int, update_
 
     if result:
         for key, value in update_data["data"].items():
-            log(INFO, f"{key} {value}")
             setattr(result, key, value)
         db_session.commit()
         

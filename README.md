@@ -28,7 +28,7 @@ tests
 
 - FINISHED_ANAYZE
   - git
-    {"kind": "FINISHED_ANALYZE","data": {"id": 1, "fk_user":"new_user10","analyzer":"121121","examination_date":"2024-05-03 23:54:48.197062","leukocytes":"2137","nitrite":"aak","urobilinogen":"4.6","protein":null,"ph":null,"blood":"0.2","specific_gravity":null,"ascorbate":null,"ketone":null,"bilirubin":null,"glucose":"5.2","micro_albumin":null}}
+    {"kind": "FINISHED_ANALYZE","data": {"id": 3, "fk_user":"new_user10","analyzer":"121121","examination_date":"2024-05-03 23:54:48.197062","leukocytes":"2137","nitrite":"aak","urobilinogen":"4.6","protein":null,"ph":null,"blood":"0.2","specific_gravity":null,"ascorbate":null,"ketone":null,"bilirubin":null,"glucose":"5.2","micro_albumin":null}}
   - niepoprawne dane
     {"kind": "FINISHED_ANALYZE","data": {"id": 5, "fk_user":"new_user10","analyzer":"121121","examination_date":"2024-05-03 23:54:48.197062","leukocytes":"2137","nitrite":"aak","urobilinogen":"4.6","protein":null,"ph":null,"blood":"1","specific_gravity":null,"ascorbate":null,"ketone":null,"bilirubin":null,"glucose":"5.2","micro_albumin":""}}
   - badanie nie istnieje
