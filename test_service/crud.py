@@ -32,8 +32,10 @@ async def update_user(db_session: Session, user_login: str, update_data: dict) -
             for key, value in update_data.items():
                 setattr(user, key, value)
             db_session.commit()
+            log(INFO, "Successfully updated user")
 
-        log(INFO, "Successfully updated user")
+        else:
+            log(ERROR, f"Unable to update user. No user with login: {user_login}")
 
     except Exception as e:
         log(ERROR, f"Unable to update user: {e}")
@@ -42,11 +44,14 @@ async def update_user(db_session: Session, user_login: str, update_data: dict) -
 async def update_wallet(db_session: Session, user_login: str, change: float) -> None:
     try:
         current_data = db_session.query(Users).filter(Users.login == user_login).first()
-        db_session.query(Users).filter(Users.login == user_login).update(
-            {'wallet': current_data.wallet + change})
-        db_session.commit()
+        if current_data:
+            db_session.query(Users).filter(Users.login == user_login).update(
+                {'wallet': current_data.wallet + change})
+            db_session.commit()
 
-        log(INFO, "Successfully updated user")
+            log(INFO, "Successfully updated user")
+        else:
+            log(ERROR, f"Unable to update user wallet. No user with login: {user_login}")
 
     except Exception as e:
         log(ERROR, f"Unable to update user: {e}")
@@ -64,7 +69,11 @@ async def delete_user(db_session: Session, login: str) -> None:
         users = db_session.query(Users).filter(Users.login == login).delete()
         db_session.commit()
 
-        log(INFO, "Successfully deleted user")
+        if users <= 0:
+            log(ERROR, f"Unable to delete user. No user with login: {login}")
+
+        else:
+            log(INFO, "Successfully deleted user")
 
     except Exception as e:
         log(ERROR, f"Unable to delete user: {e}")
@@ -86,6 +95,11 @@ async def get_examination_result_by_id(db_session: Session, result_id: int):
 
 
 async def get_users_examinations(db_session: Session, login: str):
+    usr = db_session.query(Users).filter(Users.login == login).first()
+
+    if usr is None:
+        return None
+
     results = db_session.query(ExaminationResult).filter(ExaminationResult.fk_user == login).all()
 
     return [
@@ -108,10 +122,13 @@ async def get_users_examinations(db_session: Session, login: str):
 
 async def update_examination_result(db_session: Session, result_id: int, update_data: dict):
     result = db_session.query(ExaminationResult).filter(ExaminationResult.id == result_id).first()
+
     if result:
-        for key, value in update_data.items():
+        for key, value in update_data["data"].items():
+            log(INFO, f"{key} {value}")
             setattr(result, key, value)
         db_session.commit()
+        
         return result
     return None
 
@@ -121,5 +138,4 @@ async def delete_examination_result(db_session: Session, result_id: int):
     if result:
         db_session.delete(result)
         db_session.commit()
-        return True
-    return False
+    return result

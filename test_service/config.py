@@ -44,6 +44,7 @@ class Config:
                 self.kafka_producer = self.kafka_base.copy()
 
                 self.kafka_consumer['group.id'] = 'tests'
-                self.kafka_consumer['auto.offset.reset'] = 'latest'
+                self.kafka_consumer['auto.offset.reset'] = 'earliest'
+                self.kafka_consumer['enable.auto.commit'] = False
 
                 self.kafka_producer['client.id'] = 'tests-producer'

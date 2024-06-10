@@ -11,15 +11,18 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - kafka
-      - zookeeper
       - db
+    #   - kafka
+    #   - zookeeper
+
     networks:
       - app_network
 
   db:
     image: postgres:15
     container_name: postgres_db
+    ports:
+      - "9432:5432"
     environment:
       - POSTGRES_DB=isi
       - POSTGRES_USER=admin

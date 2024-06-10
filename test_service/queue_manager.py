@@ -49,6 +49,8 @@ class KafkaConsumer:
 
                 await asyncio.sleep(1)
 
+                self.consumer.commit()
+
         except Exception as e:
             log(ERROR, f'Błąd podczas konsumpcji wiadomości: {e}')
 
@@ -100,6 +102,9 @@ class KafkaConsumer:
                             if user:
                                 response = TestsEvent(kind=TestsEventType.FINISHED_TEST, data=FinishedTest(email=str(user.email))).model_dump_json()
                                 await producer.produce_message(topic="tests", message=str(response))
+                                log(INFO, f"Produced finished test event") 
+                        else:
+                            log(ERROR, f"No empty examination with id: {decoded.data.id}") 
                             
                     case TestsEventType.VERIFIED_USER:
                         pass
@@ -136,14 +141,3 @@ class KafkaProducer:
             log(ERROR, f"Unable to produce event: {e}")
 
 producer = KafkaProducer()
-
-# ----
-
-
-
-# {"kind": "NEW_USER","data": {"login":"kutacz10","email":"ur10@mo.m","wallet":21.37}}
-# {"kind": "UPDATE","data": {"login":"kutacz","email":"ur4@mo.m","wallet":421.37}}
-# {"kind": "DELETE","data": {"login":"kutacz","email":"ur@mo.m","wallet":21.37}}
-# {"kind": "CHANGE_WALLET","data": {"login":"kutacz","email":"ur2@mo.m","wallet":-11.37}}
-
-# {"kind": "FINISHED_ANALYZE","data": {"id": 5, "fk_user":"adamozo","analyzer":"121121","examination_date":"2024-05-03 23:54:48.197062","leukocytes":"2137","nitrite":null,"urobilinogen":null,"protein":null,"ph":null,"blood":null,"specific_gravity":null,"ascorbate":null,"ketone":null,"bilirubin":null,"glucose":null,"micro_albumin":null}}
